@@ -82,12 +82,16 @@ class DownloadFilesPipeline(FilesPipeline):
         """ 文件下载 """
         sf = item.get('sf')
         cf_cfmc = item.get('cf_cfmc')
-        img_url = item.get('img_url', '')
+        img_url = item.get('img_url', '')  # 图片下载链接
+        wbbz = item.get('wbbz', '')  # doc下载链接
+        bz = item.get('bz', '')  # PDF下载链接
         meta_data = {'sf': sf, 'cf_cfmc': cf_cfmc}
         if img_url:
             yield scrapy.Request(url=img_url, meta=meta_data)
-        else:
-            logger.debug('不是图片表格数据--无需下载')
+        if wbbz:
+            yield scrapy.Request(url=wbbz, meta=meta_data)
+        if wbbz:
+            yield scrapy.Request(url=bz, meta=meta_data)
 
     def file_path(self, request, response=None, info=None):
         """ 重命名文件夹名称 """
@@ -106,9 +110,7 @@ class DownloadFilesPipeline(FilesPipeline):
             # print(item.get('img_url'))
         else:
             item['cf_file_name'] = ''
-            logger.debug('不是图片表格数据--无需下载')
             # raise DropItem('Image Downloaded Failed')
-        # print(f'数据:{item}')
         return item
 
 

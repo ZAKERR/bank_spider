@@ -22,12 +22,13 @@ class HkSfcSpider(scrapy.Spider):
         'sj_type': '15',
         'xxly': '香港-证券及期货事务监察委员会-执法消息',
         'site_id': 38701,
+        'cf_xzjg': '香港证券及期货事务监察委员会',
     }
 
     def start_requests(self):
         for year in range(1997, 2021):
             url = 'https://www.sfc.hk/edistributionWeb/gateway/TC/news-and-announcements/news/enforcement-news/?year={}&page=1'.format(year)
-            yield scrapy.Request(url=url)
+            yield scrapy.Request(url=url, dont_filter=True)
 
     def parse(self, response):
         """ 解析列表页+列表页翻页+请求详情页 """

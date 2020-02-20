@@ -2,7 +2,6 @@
 
 
 # 银保监协会配置文件
-
 bank_custom_settings = {
     "COOKIES_ENABLED": False,  # 禁用cookie
     # "CONCURRENT_REQUESTS": 8,   # 并发设置
@@ -27,7 +26,7 @@ bank_custom_settings = {
         "bank_spider.middlewares.RandomUserAgentMiddleware": 400,
         # "bank_spider.middlewares.RandomProxyMiddlerware": 410,
         # "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-        # "bank_spider.middlewares.GsxcxRetryMiddlerware": 420,
+        "bank_spider.middlewares.LocalRetryMiddlerware": 420,
     },
 
     "DEFAULT_REQUEST_HEADERS": {
@@ -43,11 +42,17 @@ bank_custom_settings = {
     }
 }
 
+
 # 香港-证券及期货事务监察委员会-执法信息
 hk_custom_settings = {
     "RETRY_ENABLED": True,
     "RETRY_TIMES": '9',
     "DOWNLOAD_TIMEOUT": '20',
+
+    "SCHEDULER": "scrapy_redis.scheduler.Scheduler",
+    "DUPEFILTER_CLASS": "scrapy_redis.dupefilter.RFPDupeFilter",
+    "SCHEDULER_QUEUE_CLASS": "scrapy_redis.queue.SpiderPriorityQueue",
+    "SCHEDULER_PERSIST": True,
 
     "ITEM_PIPELINES": {
         "bank_spider.pipelines.BankSpiderPipeline": 300,
@@ -57,8 +62,49 @@ hk_custom_settings = {
 
     "DOWNLOADER_MIDDLEWARES": {
         "bank_spider.middlewares.RandomUserAgentMiddleware": 400,
-        # "bank_spider.middlewares.RandomProxyMiddlerware": 410,
-        # "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-        # "bank_spider.middlewares.GsxcxRetryMiddlerware": 420,
+        "bank_spider.middlewares.RandomProxyMiddlerware": 410,
+        "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+        "bank_spider.middlewares.LocalRetryMiddlerware": 420,
     },
+}
+
+
+# 北京市税务局
+beijing_custom_settings = {
+    "COOKIES_ENABLED": False,  # 禁用cookie
+    # "DOWNLOAD_DELAY": 0.3,  # 下载延迟
+    "RETRY_ENABLED": True,
+    "RETRY_TIMES": '9',
+    "DOWNLOAD_TIMEOUT": '20',
+
+    "SCHEDULER": "scrapy_redis.scheduler.Scheduler",
+    "DUPEFILTER_CLASS": "scrapy_redis.dupefilter.RFPDupeFilter",
+    "SCHEDULER_QUEUE_CLASS": "scrapy_redis.queue.SpiderPriorityQueue",
+    "SCHEDULER_PERSIST": True,
+
+    "ITEM_PIPELINES": {
+        "bank_spider.pipelines.BankSpiderPipeline": 300,
+        # "bank_spider.pipelines.Save2eEsPipeline": 380,
+        "bank_spider.pipelines.MongodbIndexPipeline": 390,
+    },
+
+    "DOWNLOADER_MIDDLEWARES": {
+        "bank_spider.middlewares.RandomUserAgentMiddleware": 400,
+        "bank_spider.middlewares.RandomProxyMiddlerware": 410,
+        "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+        "bank_spider.middlewares.LocalRetryMiddlerware": 420,
+    },
+
+    "DEFAULT_REQUEST_HEADERS": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "DNT": "1",
+        "Host": "beijing.chinatax.gov.cn",
+        "Pragma": "no-cache",
+        "Referer": "http://beijing.chinatax.gov.cn/bjsat/office/jsp/zdsswfaj/wwquery",
+    }
 }
