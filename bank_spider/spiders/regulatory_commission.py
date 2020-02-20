@@ -647,18 +647,18 @@ class RegulatoryCommissionSpider(scrapy.Spider):
                 cf_yj = get_cf_yj(ws_nr_txt)
                 cf_jg = get_cf_jg(ws_nr_txt)
                 cf_jdrq = get_cf_jdrq(ws_nr_txt)
-                cf_jdrq = handles_cf_jdrq(cf_jdrq)
+                cf_jdrq = handles_cf_jdrq(cf_jdrq).replace('号', '') if cf_jdrq else None
                 second_item = dict(
                     oname=oname, cf_wsh=cf_wsh, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, sf=docSource,
                     cf_xzjg=listTwoItem, cf_jdrq=cf_jdrq, xq_url=response.url, ws_nr_txt=ws_nr_txt,
-                    hahah=docClob,
                 )
                 item = {**second_item, **base_data,  **self.base_item}
                 # print(f'数据：{item}--url:{response.url}')
                 # print(f'正则提取:{item}')
                 yield item
         else:
-            item = {**base_data, **self.base_item}
+            data = dict(xq_url=response.url)
+            item = {**base_data, **self.base_item, **data}
             yield item
 
     @classmethod
