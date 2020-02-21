@@ -6,6 +6,7 @@ import logging
 
 import pymongo
 import scrapy
+from fontTools import unichr
 from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import FilesPipeline
 
@@ -18,6 +19,38 @@ logger = logging.getLogger(__name__)
 
 class BankSpiderPipeline(object):
     """ 添加必要字段简单数据清洗 """
+
+    def handle_other(self, time_date):
+        """ 处理日期 """
+        if time_date:
+            time_date = re.sub(r'\n|\r|\t| |\s', '', time_date)
+            return time_date
+        else:
+            return None
+
+    def strQ2B(self, ustring):
+        """全角转半角 """
+        rstring = ""
+        for uchar in ustring:
+            inside_code = ord(uchar)
+            if inside_code == 12288:
+                inside_code = 32
+            elif (inside_code >= 65281 and inside_code <= 65374):
+                inside_code -= 65248
+            rstring += unichr(inside_code)
+        return rstring
+
+    def strB2Q(self, ustring):
+        """ 半角转全角 """
+        rstring = ""
+        for uchar in ustring:
+            inside_code = ord(uchar)
+            if inside_code == 32:
+                inside_code = 12288
+            elif inside_code >= 32 and inside_code <= 126:
+                inside_code += 65248
+            rstring += unichr(inside_code)
+        return rstring
 
     def handle_date(self, _str: str):
         """ 时间格式转换 """
@@ -65,8 +98,11 @@ class BankSpiderPipeline(object):
         item['cj_sj'] = math.ceil(time.time())
         cf_jdrq = item.get('cf_jdrq')
         fb_rq = item.get('fb_rq')
-        item['cf_jdrq'] = self.handle_date(cf_jdrq)
+        cf_jdrq = self.handle_date(cf_jdrq)
+        cf_jdrq = self.strQ2B(cf_jdrq) if cf_jdrq else None
+        cf_jdrq = self.handle_other(cf_jdrq) if cf_jdrq else None
         item['fb_rq'] = self.handle_date(fb_rq)
+        item['cf_jdrq'] = cf_jdrq.replace("号", "") if cf_jdrq else None
         ws_pc_id = cf_filter_fact(item)
         if ws_pc_id:
             item['ws_pc_id'] = ws_pc_id

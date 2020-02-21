@@ -24,8 +24,7 @@ class BankCommissionSpider(scrapy.Spider):
         """ 爬虫入口 """
         data_list = [4113, 4114, 4115]
         for item_id in data_list:
-            start_url = 'http://www.cbirc.gov.cn/cn/static/data/DocInfo/SelectDocByItemIdAndChild/data_itemId={},pageIndex=1,pageSize=18.json'.format(
-                item_id)
+            start_url = 'http://www.cbirc.gov.cn/cn/static/data/DocInfo/SelectDocByItemIdAndChild/data_itemId={},pageIndex=1,pageSize=18.json'.format(item_id)
             yield scrapy.Request(url=start_url, meta={'item_id': item_id}, dont_filter=True)
 
     def parse(self, response):
@@ -74,7 +73,7 @@ class BankCommissionSpider(scrapy.Spider):
         results = json.loads(response.body.decode('utf-8'))
         base_item = results.get('data')
         docSource = base_item.get('docSource')  # 省份
-        listTwoItem = base_item.get('listTwoItem')[0].get('ItemLvs')[0].get('itemName')  # 处罚机关
+        listTwoItem = base_item.get('listTwoItem')[0].get('ItemLvs')[-1].get('itemName')  # 处罚机关
         docTitle = base_item.get('docTitle')  # 标题
         cf_wsh = self.get_cfwsh_cfmc(docTitle).strip()
         docClob = base_item.get('docClob').strip()  # 网页源码
@@ -92,11 +91,8 @@ class BankCommissionSpider(scrapy.Spider):
                 for data in first_table:
                     base = data.xpath('./tr').getall()
                     if len(base) == 7:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
                         pname = ''
                         cf_sy = data.xpath('string(./tr[3]/td[last()])').get('').strip()  # 主要违法违规事实（案由）
                         cf_yj = data.xpath('string(./tr[4]/td[last()])').get('').strip()  # 行政处罚依据
@@ -104,11 +100,8 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[6]/td[last()])').get('').strip()  # 处罚决定机关
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 8:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 被处罚当事人姓名
                         pname = data.xpath('string(./tr[3]/td[last()])').get('').strip()
                         cf_sy = data.xpath('string(./tr[4]/td[last()])').get('').strip()
                         cf_yj = data.xpath('string(./tr[5]/td[last()])').get('').strip()
@@ -116,14 +109,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[7]/td[last()])').get('').strip()
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 9:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--','').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚结果
@@ -131,20 +120,11 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 10:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
                         cf_sy = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚结果
@@ -157,17 +137,10 @@ class BankCommissionSpider(scrapy.Spider):
                         else:
                             oname = oname_third
                     elif len(base) == 11:
-                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚结果
@@ -175,17 +148,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 12:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--','').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -193,17 +159,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 13 or len(base) == 14 or len(base) == 15:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -242,14 +201,10 @@ class BankCommissionSpider(scrapy.Spider):
                         pname = ''
                         cf_xzjg = listTwoItem
                     elif len(base) == 5:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = ''
                         cf_jg = ''
@@ -276,24 +231,18 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = ''
                         cf_jdrq = ''
                         print(f'还有其他格式表格--{response.url}------{len(base)}')
-
                     table_item = dict(
                         oname=oname.replace('\r', '').replace('\n', '').replace('\xa0', ''), cf_wsh=cf_wsh,
                         pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
-                        sf=docSource, xq_url=response.url, ws_nr_txt=first_table.xpath('./tr').get(''),
+                        sf=docSource, xq_url=response.url, ws_nr_txt=first_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
-                    # print(item)
-                    yield item
             elif second_table:
                 for data in second_table:
                     base = data.xpath('./tr').getall()
                     if len(base) == 7:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
                         pname = ''
                         cf_sy = data.xpath('string(./tr[3]/td[last()])').get('').strip()  # 主要违法违规事实（案由）
                         cf_yj = data.xpath('string(./tr[4]/td[last()])').get('').strip()  # 行政处罚依据
@@ -301,11 +250,8 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[6]/td[last()])').get('').strip()  # 处罚决定机关
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 8:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
                         pname = data.xpath('string(./tr[3]/td[last()])').get('').strip()
                         cf_sy = data.xpath('string(./tr[4]/td[last()])').get('').strip()
                         cf_yj = data.xpath('string(./tr[5]/td[last()])').get('').strip()
@@ -313,14 +259,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[7]/td[last()])').get('').strip()
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 9:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚结果
@@ -328,20 +270,11 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 10:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
                         cf_sy = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚结果
@@ -354,17 +287,10 @@ class BankCommissionSpider(scrapy.Spider):
                         else:
                             oname = oname_third
                     elif len(base) == 11:
-                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('    ----    ', '').replace('-', '').strip()
-                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
-                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
+                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('    ----    ', '').replace('-', '').strip()
+                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
+                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
                         cf_sy = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚结果
@@ -372,17 +298,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 12:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--','').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -390,17 +309,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 13 or len(base) == 14 or len(base) == 15:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -438,14 +350,10 @@ class BankCommissionSpider(scrapy.Spider):
                         pname = ''
                         cf_xzjg = listTwoItem
                     elif len(base) == 5:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = ''
                         cf_jg = ''
@@ -472,24 +380,18 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = ''
                         cf_jdrq = ''
                         print(f'还有其他格式表格--{response.url}--草泥马：{len(base)}')
-
                     table_item = dict(
                         oname=oname.replace('\r', '').replace('\n', '').replace('\xa0', ''), cf_wsh=cf_wsh,
                         pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
-                        sf=docSource, xq_url=response.url, ws_nr_txt=first_table.xpath('./tr').get(''),
+                        sf=docSource, xq_url=response.url, ws_nr_txt=second_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
-                    # print(f'第二种:{item}')
-                    yield item
             elif third_table:
                 for data in third_table:
                     base = data.xpath('./tr').getall()
                     if len(base) == 7:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
                         pname = ''
                         cf_sy = data.xpath('string(./tr[3]/td[last()])').get('').strip()  # 主要违法违规事实（案由）
                         cf_yj = data.xpath('string(./tr[4]/td[last()])').get('').strip()  # 行政处罚依据
@@ -497,11 +399,8 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[6]/td[last()])').get('').strip()  # 处罚决定机关
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 8:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()  # 被处罚当事人姓名
                         pname = data.xpath('string(./tr[3]/td[last()])').get('').strip()
                         cf_sy = data.xpath('string(./tr[4]/td[last()])').get('').strip()
                         cf_yj = data.xpath('string(./tr[5]/td[last()])').get('').strip()
@@ -509,14 +408,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_xzjg = data.xpath('string(./tr[7]/td[last()])').get('').strip()
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
                     elif len(base) == 9:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚结果
@@ -524,20 +419,11 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 10:
-                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
+                        cf_wsh = data.xpath('string(./tr[1]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[3]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_third = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
                         cf_sy = data.xpath('string(./tr[6]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚结果
@@ -550,17 +436,10 @@ class BankCommissionSpider(scrapy.Spider):
                         else:
                             oname = oname_third
                     elif len(base) == 11:
-                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('    ----    ', '').replace('-', '').strip()
-                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
-                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').strip()
+                        cf_wsh = data.xpath('string(./tr[3]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('    ----    ', '').replace('-', '').strip()
+                        oname_second = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
+                        pname = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').strip()
                         cf_sy = data.xpath('string(./tr[7]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚结果
@@ -568,17 +447,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 12:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -586,17 +458,10 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get().strip()  # 处罚决定日期
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 13 or len(base) == 14 or len(base) == 15:
-                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n',
-                                                                                                            '').strip()
-                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                  '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
-                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        cf_wsh = data.xpath('string(./tr[4]/td[last()])').get('').replace('\r', '').replace('\n', '').strip()
+                        oname_first = data.xpath('string(./tr[5]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        oname_second = data.xpath('string(./tr[6]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
+                        pname = data.xpath('string(./tr[7]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()
                         cf_sy = data.xpath('string(./tr[8]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get().strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get().strip()  # 处罚结果
@@ -605,8 +470,7 @@ class BankCommissionSpider(scrapy.Spider):
                         oname = oname_first if oname_first else oname_second
                     elif len(base) == 1 or len(base) == 2:
                         ws_nr_content = remove_tags(docClob)
-                        ws_nr_txt = reduce(lambda x, y: x + y, [re_com.sub('', i) for i in ws_nr_content]).replace(
-                            '&nbsp;', '')
+                        ws_nr_txt = reduce(lambda x, y: x + y, [re_com.sub('', i) for i in ws_nr_content]).replace('&nbsp;', '')
                         cf_wsh = re.search(r'处罚决定书文号(.*?罚.*?\d{4}.*?\d+号)', ws_nr_txt)
                         cf_wsh = cf_wsh.group(1) if cf_wsh else ''
                         oname = re.search(r'被处罚人姓名或名称(.*?)法定代表人姓名', ws_nr_txt)
@@ -625,8 +489,7 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_jdrq = cf_jdrq.group(1) if cf_jdrq else ''
                     elif len(base) == 0:
                         ws_nr_content = remove_tags(docClob)
-                        ws_nr_txt = reduce(lambda x, y: x + y, [re_com.sub('', i) for i in ws_nr_content]).replace(
-                            '&nbsp;', '')
+                        ws_nr_txt = reduce(lambda x, y: x + y, [re_com.sub('', i) for i in ws_nr_content]).replace('&nbsp;', '')
                         oname = get_oname(ws_nr_txt)
                         cf_sy = get_cf_sy(ws_nr_txt)
                         cf_yj = get_cf_yj(ws_nr_txt)
@@ -636,14 +499,10 @@ class BankCommissionSpider(scrapy.Spider):
                         pname = ''
                         cf_xzjg = listTwoItem
                     elif len(base) == 5:
-                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n',
-                                                                                                       '').strip()  # 行政处罚决定书文号
-                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                                 '').replace(
-                            '/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
+                        cf_wsh = data.xpath('string(./tr[1]/td[2])').get('').replace('\r', '').replace('\n', '').strip()  # 行政处罚决定书文号
+                        oname_first = data.xpath('string(./tr[2]/td[last()])').get('').replace('——', '').replace('--', '').replace('/', '').replace('—', '').replace('-', '').replace('    ----    ', '').strip()  # 主体=个人姓名
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get()  # 主体=企业名称
-                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--',
-                                                                                                           '').strip()  # 法人
+                        pname = data.xpath('string(./tr[4]/td[last()])').get('').replace('——', '').replace('--', '').strip()  # 法人
                         cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
                         cf_yj = ''
                         cf_jg = ''
@@ -674,11 +533,9 @@ class BankCommissionSpider(scrapy.Spider):
                     table_item = dict(
                         oname=oname.replace('\r', '').replace('\n', '').replace('\xa0', ''), cf_wsh=cf_wsh,
                         pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
-                        sf=docSource, xq_url=response.url, ws_nr_txt=first_table.xpath('./tr').get(''),
+                        sf=docSource, xq_url=response.url, ws_nr_txt=third_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
-                    # print(f'第二种:{item}')
-                    yield item
             else:
                 ws_nr_content = remove_tags(docClob)
                 ws_nr_txt = reduce(lambda x, y: x + y, [re_com.sub('', i) for i in ws_nr_content]).replace('&nbsp;', '')
@@ -693,13 +550,10 @@ class BankCommissionSpider(scrapy.Spider):
                     cf_xzjg=listTwoItem, cf_jdrq=cf_jdrq, xq_url=response.url, ws_nr_txt=ws_nr_txt,
                 )
                 item = {**second_item, **base_data, **self.base_item}
-                # print(f'数据：{item}--url:{response.url}')
-                # print(f'正则提取:{item}')
-                yield item
         else:
             data = dict(xq_url=response.url)
             item = {**base_data, **self.base_item, **data}
-            yield item
+        yield item
 
     @classmethod
     def get_cfwsh_cfmc(cls, txt):
