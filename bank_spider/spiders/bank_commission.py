@@ -45,7 +45,7 @@ class BankCommissionSpider(scrapy.Spider):
             xq_url = 'http://www.cbirc.gov.cn/cn/static/data/DocInfo/SelectByDocId/data_docId={}.json'.format(docId)
             doc_url = 'http://www.cbirc.gov.cn' + docFileUrl if docFileUrl else ''
             pdf_url = 'http://www.cbirc.gov.cn' + pdfFileUrl if pdfFileUrl else ''
-            meta_data = {'cf_cfmc': docTitle, 'fb_rq': publishDate, 'cf_type': itemName, 'bz':{'doc_url': doc_url, 'pdf_url': pdf_url}}
+            meta_data = {'cf_cfmc': docTitle, 'fb_rq': publishDate, 'cf_type': itemName, 'bz': list({'doc_url': doc_url, 'pdf_url': pdf_url})}
             yield scrapy.Request(
                 url=xq_url,
                 callback=self.parse_details,
