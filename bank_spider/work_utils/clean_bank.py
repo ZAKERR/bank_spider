@@ -85,7 +85,7 @@ def get_cf_sy(txt):
 def get_cf_jg(txt):
     """ 获取处罚结果 """
     if txt:
-        first = re.search(r'(作出如下处罚：|决定给予你单位以下行政处罚：|条规定，)(.*?)(当事人如对本处罚决定不服|如你公司|请在接到本处罚决定书)', txt)
+        first = re.search(r'(作出如下处罚：|决定给予你单位以下行政处罚：|条规定，|作出如下行政处罚：)(.*?)(当事人如对本处罚决定不服|如你公司|请在接到本处罚决定书|当事人如不服)', txt)
         second = re.search(r'((现责令|决定给予|我局决定|对你公司).*?。)', txt)
         if first:
             cf_jg = first.group(2)
