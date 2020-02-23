@@ -285,8 +285,8 @@ class RegulatoryCommissionSpider(scrapy.Spider):
                         print(f'还有其他格式表格--{response.url}--{len(base)}')
 
                     table_item = dict(
-                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh),
-                        pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
+                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh), pname=self.handle_data(pname),
+                        cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
                         sf=docSource, xq_url=response.url, ws_nr_txt=first_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
@@ -450,8 +450,8 @@ class RegulatoryCommissionSpider(scrapy.Spider):
                         print(f'还有其他格式表格--{response.url}--草泥马')
 
                     table_item = dict(
-                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh),
-                        pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
+                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh), pname=self.handle_data(pname),
+                        cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
                         sf=docSource, xq_url=response.url, ws_nr_txt=second_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
@@ -615,8 +615,8 @@ class RegulatoryCommissionSpider(scrapy.Spider):
                         print(f'还有其他格式表格--{response.url}--草泥马')
 
                     table_item = dict(
-                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh),
-                        pname=pname, cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
+                        oname=self.handle_data(oname), cf_wsh=self.handle_data(cf_wsh), pname=self.handle_data(pname),
+                        cf_sy=cf_sy, cf_yj=cf_yj, cf_jg=cf_jg, cf_xzjg=cf_xzjg, cf_jdrq=cf_jdrq,
                         sf=docSource, xq_url=response.url, ws_nr_txt=third_table.xpath('./tr').getall(),
                     )
                     item = {**table_item, **base_data, **self.base_item}
