@@ -178,7 +178,7 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get('').strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get('').strip()  # 处罚结果
                         cf_xzjg = data.xpath('string(./tr[11]/td[last()])').get('').strip()  # 处罚决定机关
-                        cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
+                        cf_jdrq = data.xpath('string(./tr[last()-1]/td[last()])').get('').strip()  # 处罚决定日期
                         oname = oname_second if oname_second else oname_first
 
                     elif len(base) == 1 or len(base) == 2:
@@ -343,7 +343,7 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get('').strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get('').strip()  # 处罚结果
                         cf_xzjg = data.xpath('string(./tr[11]/td[last()])').get('').strip()  # 处罚决定机关
-                        cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
+                        cf_jdrq = data.xpath('string(./tr[last()-1]/td[last()])').get('').strip()  # 处罚决定日期
                         oname = oname_second if oname_second else oname_first
                     elif len(base) == 1 or len(base) == 2:
                         ws_nr_content = remove_tags(docClob)
@@ -507,7 +507,7 @@ class BankCommissionSpider(scrapy.Spider):
                         cf_yj = data.xpath('string(./tr[9]/td[last()])').get('').strip()  # 处罚依据
                         cf_jg = data.xpath('string(./tr[10]/td[last()])').get('').strip()  # 处罚结果
                         cf_xzjg = data.xpath('string(./tr[11]/td[last()])').get('').strip()  # 处罚决定机关
-                        cf_jdrq = data.xpath('string(./tr[last()]/td[last()])').get('').strip()  # 处罚决定日期
+                        cf_jdrq = data.xpath('string(./tr[last()-1]/td[last()])').get('').strip()  # 处罚决定日期
                         oname = oname_second if oname_second else oname_first
                     elif len(base) == 1 or len(base) == 2:
                         ws_nr_content = remove_tags(docClob)
