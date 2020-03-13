@@ -218,7 +218,7 @@ class BankCommissionSpider(scrapy.Spider):
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get('').strip()  # 主体=企业名称
                         oname_second = self.handle_data(oname_second)
                         pname = data.xpath('string(./tr[4]/td[last()])').get('').strip()  # 法人
-                        cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
+                        cf_sy = data.xpath('string(./tr[5]/td[last()])').get('').strip()  # 处罚事由
                         cf_yj = ''
                         cf_jg = ''
                         cf_xzjg = listTwoItem
@@ -382,7 +382,7 @@ class BankCommissionSpider(scrapy.Spider):
                         oname_second = data.xpath('string(./tr[3]/td[last()])').get('').strip()  # 主体=企业名称
                         oname_second = self.handle_data(oname_second)
                         pname = data.xpath('string(./tr[4]/td[last()])').get('').strip()  # 法人
-                        cf_sy = data.xpath('string(./tr[5]/td[last()])').get().strip()  # 处罚事由
+                        cf_sy = data.xpath('string(./tr[5]/td[last()])').get('').strip()  # 处罚事由
                         cf_yj = ''
                         cf_jg = ''
                         cf_xzjg = listTwoItem
