@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 class BankSpiderPipeline(object):
     """ 添加必要字段简单数据清洗 """
-
     def handle_other(self, time_date):
         """ 处理日期 """
         if time_date:
@@ -96,12 +95,13 @@ class BankSpiderPipeline(object):
         # item['sj_type'] = '43'
         # 添加时间戳
         item['cj_sj'] = math.ceil(time.time())
-        cf_jdrq = item.get('cf_jdrq')
         fb_rq = item.get('fb_rq')
-        cf_jdrq = self.handle_date(cf_jdrq)
-        cf_jdrq = self.strQ2B(cf_jdrq) if cf_jdrq else None
-        cf_jdrq = self.handle_other(cf_jdrq) if cf_jdrq else None
         item['fb_rq'] = self.handle_date(fb_rq)
+
+        cf_jdrq = item.get('cf_jdrq')
+        cf_jdrq = self.handle_other(cf_jdrq)
+        cf_jdrq = self.strQ2B(cf_jdrq) if cf_jdrq else None
+        cf_jdrq = self.handle_date(cf_jdrq) if cf_jdrq else None
         item['cf_jdrq'] = cf_jdrq.replace("号", "") if cf_jdrq else None
         ws_pc_id = cf_filter_fact(item)
         if ws_pc_id:
@@ -113,7 +113,6 @@ class BankSpiderPipeline(object):
 
 class DownloadFilesPipeline(FilesPipeline):
     """ 文件下载，管道文件 """
-
     def get_media_requests(self, item, info):
         """ 文件下载 """
         sf = item.get('sf')
@@ -126,7 +125,7 @@ class DownloadFilesPipeline(FilesPipeline):
             yield scrapy.Request(url=img_url, meta=meta_data)
         if wbbz:
             yield scrapy.Request(url=wbbz, meta=meta_data)
-        if wbbz:
+        if bz:
             yield scrapy.Request(url=bz, meta=meta_data)
 
     def file_path(self, request, response=None, info=None):
